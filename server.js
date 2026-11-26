@@ -1,12 +1,12 @@
 const http=require('http'),fs=require('fs'),path=require('path'),os=require('os'),crypto=require('crypto');
-const PORT=3000,RMAX=2600,RMIN=450,NB=10,NF=750,VIEW=1700;
+const PORT=+process.env.PORT||3000,RMAX=2600,RMIN=450,NB=10,NF=750,VIEW=1700;
 const Ac=require('./acessorios.js'),PASSO=+process.env.PASSO||120,VELF=.7;
 const DUR=+process.env.DUR||300,PAUSA=+process.env.PAUSA||15,INI=Math.min(20,DUR*.1);
 const NOMES=['Jade','Naga','Ouro','Brisa','Maré','Coral','Pérola','Onda','Raio','Névoa'];
 const CORES=['#ff6b5a','#f2b950','#4fd1c5','#2b8a9c','#b794f4','#7f5af0','#68d391','#2f855a','#f687b3','#d53f8c','#63b3ed','#3182ce','#ed8936','#ffffff'];
 let snakes=[],food=[],clients=new Set(),nid=1,rk=[],raio=RMAX,fase='jogo',t0=Date.now(),tFim=0,mural=[];
 let mortesH=0,alvoR=RMAX,lider=null;const elim=new Set();
-try{mural=JSON.parse(fs.readFileSync(path.join(__dirname,'mural.json'),'utf8'))}catch(e){}
+try{mural=JSON.parse(fs.readFileSync(path.join(process.env.DATA_DIR||__dirname,'mural.json'),'utf8'))}catch(e){}
 
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const ri=n=>Math.floor(Math.random()*n);
@@ -142,7 +142,7 @@ function encerrar(){
   if(w){
     mural.unshift({n:w.nome,m:Math.floor(w.mass),k:w.k,d:new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})});
     mural=mural.slice(0,8);
-    try{fs.writeFileSync(path.join(__dirname,'mural.json'),JSON.stringify(mural))}catch(e){}
+    try{fs.writeFileSync(path.join(process.env.DATA_DIR||__dirname,'mural.json'),JSON.stringify(mural))}catch(e){}
   }
   const msg=JSON.stringify({t:'r',pod:top.map(s=>({n:s.nome,m:Math.floor(s.mass),k:s.k})),mural:mural,seg:PAUSA});
   for(const c of clients)enviar(c,msg);
