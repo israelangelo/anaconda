@@ -215,6 +215,12 @@ const srv=http.createServer((req,res)=>{
       if(e){res.writeHead(500);res.end();return}
       res.writeHead(200,{'Content-Type':'application/javascript; charset=utf-8','Cache-Control':'no-cache'});res.end(d);
     });
+  }else if(['/manifest.webmanifest','/service-worker.js','/icons/icon-192.png','/icons/icon-512.png'].includes(req.url.split('?')[0])){
+    const rel=decodeURIComponent(req.url.split('?')[0]).replace(/^\//,'');
+    const file=path.join(__dirname,rel);
+    if(!file.startsWith(__dirname+path.sep)){res.writeHead(403);res.end();return}
+    const types={'.webmanifest':'application/manifest+json','.js':'application/javascript','.png':'image/png'};
+    fs.readFile(file,(e,d)=>{if(e){res.writeHead(404);res.end();return}res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':rel==='service-worker.js'?'no-cache':'public, max-age=3600'});res.end(d)});
   }else{res.writeHead(404);res.end()}
 });
 srv.on('upgrade',(req,sock)=>{
